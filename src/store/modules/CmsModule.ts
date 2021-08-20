@@ -2,6 +2,7 @@ import ApiService from "@/core/services/ApiService";
 import JwtService from "@/core/services/JwtService";
 import { Actions, Mutations } from "@/store/enums/StoreEnums";
 import { Module, Action, Mutation, VuexModule } from "vuex-module-decorators";
+import objectPath from "object-path";
 
 export interface User {
   name: string;
@@ -32,18 +33,38 @@ export default class CmsModule extends VuexModule {
   }
 
   get cmsTotal() {
-    return this.data.total
+    return this.data.total;
   }
 
   get cmsPerPage() {
-    return this.data.per_page
+    return this.data.per_page;
+  }
+
+  get cmsColumns() {
+    return (sort = [] as Array<string>) => {
+      if (!this.cmsTableData) return [];
+      const item = this.cmsTableData[0];
+      return Object.keys(item).map(key => ({
+        property: key,
+        label: key,
+        sortable: sort.includes(key)
+      }));
+    };
+
+    if (this.cmsTableData) {
+      const item = this.cmsTableData[0];
+      return Object.keys(item).map(key => ({
+        property: key,
+        label: key
+      }));
+    }
   }
 
   @Action
-  [Actions.CMS_FETCH_MODEL]({model, params}) {
+  [Actions.CMS_FETCH_MODEL]({ model, params }) {
     return new Promise<void>((resolve, reject) => {
-      ApiService.query(model, { params }).then(({data}) => {
-        this.context.commit(Mutations.CMS_SET_DATA, data)
+      ApiService.query(model, { params }).then(({ data }) => {
+        this.context.commit(Mutations.CMS_SET_DATA, data);
         resolve();
       });
     });

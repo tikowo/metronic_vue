@@ -2,7 +2,7 @@
   <data-table
     v-model:currentPage="page"
     @sortChange="handleSortChange"
-    :columns="columns"
+    :columns="tableColumns"
     :data="tableData"
     :total="total"
     :per-page="perPage"
@@ -16,12 +16,21 @@
 
 <script>
 import DataTable from "../DataTable/index.vue";
-import {computed, onMounted, ref, toRef} from "vue";
+import { computed, onMounted, ref, toRef } from "vue";
 import { Actions } from "../../store/enums/StoreEnums";
 import { useStore } from "vuex";
 export default {
   name: "CmsTable",
-  props: ["model"],
+  props: {
+    model: {
+      type: Array,
+      default: () => []
+    },
+    search: {
+      type: Array,
+      default: () => []
+    }
+  },
   components: {
     DataTable
   },
@@ -29,6 +38,7 @@ export default {
     const store = useStore();
 
     const model = toRef(props, "model");
+    const search = toRef(props, "search");
 
     const filters = ref({});
 
@@ -38,9 +48,13 @@ export default {
         params: filters.value
       });
     });
+    const tableColumns = computed(() => {
+      return store.getters.cmsColumns(search.value);
+    });
     const tableData = computed(() => {
       return store.getters.cmsTableData;
     });
+
     const page = computed({
       get() {
         return store.getters.cmsPage;
@@ -79,6 +93,7 @@ export default {
       page,
       total,
       perPage,
+      tableColumns,
       handleSortChange
     };
   },
@@ -97,7 +112,8 @@ export default {
         },
         {
           property: "email",
-          label: "Address"
+          label: "Address",
+          sortable: true
         }
       ],
       data: [

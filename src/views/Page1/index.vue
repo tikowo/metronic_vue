@@ -1,7 +1,7 @@
 <template>
   <div class="card mb-5 mb-xxl-8">
     <div class="card-body pt-4 pb-9">
-      <cms-table model="users" />
+      <cms-table model="users" :search="['id']" />
     </div>
   </div>
 </template>
